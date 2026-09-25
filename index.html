@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Baby-Making-Machine — Fertility Coaching with Hannah</title>
+<title>Fertility Coaching with Hannah</title>
 <meta name="description" content="Warm, evidence-backed fertility coaching for both partners. Book a free discovery call with Hannah.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
@@ -106,15 +106,20 @@
   /* ---------- What we track ---------- */
   .track { padding: 30px 0 40px; text-align: center; }
   .track p { font: 700 1.05rem var(--heading); margin-bottom: 18px; }
-  .pills { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+  .pills { overflow: hidden; padding: 10px 0; /* room so a popped pill isn't clipped */ mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
   .pills-row { display: flex; gap: 12px; width: max-content; animation: slide 50s linear infinite; }
   .pills-row + .pills-row { animation-direction: reverse; margin-top: 12px; }
   .pills span {
     background: var(--cream); padding: 10px 18px; border-radius: 999px; font-weight: 500; white-space: nowrap;
     display: inline-flex; align-items: center; gap: 8px;
   }
-  .pills span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sage); }
+  .pills span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sage); transition: background .25s; }
   .pills:hover .pills-row { animation-play-state: paused; }
+  .pills span { position: relative; cursor: default; transition: transform .35s cubic-bezier(.3,1.8,.5,1), background .25s, box-shadow .25s; }
+  .pills span:hover { z-index: 1; transform: scale(1.15) rotate(-2deg); background: var(--marigold); box-shadow: 0 10px 20px -12px rgba(74,54,48,.5); }
+  .pills span:nth-child(even):hover { transform: scale(1.15) rotate(2deg); }
+  .pills span:hover::before { background: var(--coral); animation: dot-pulse .7s ease-in-out infinite alternate; }
+  @keyframes dot-pulse { to { transform: scale(1.8); } }
   @keyframes slide { to { transform: translateX(-50%); } }
 
   /* ---------- Sections ---------- */
@@ -429,6 +434,7 @@
                 <label class="chip"><input type="radio" name="stage" value="Trying under 1 year"><span>Trying &lt; 1 year</span></label>
                 <label class="chip"><input type="radio" name="stage" value="Trying 1+ years"><span>Trying 1+ years</span></label>
                 <label class="chip"><input type="radio" name="stage" value="Doing IVF / IUI"><span>Doing IVF / IUI</span></label>
+                <label class="chip"><input type="radio" name="stage" value="Egg freezing"><span>Egg freezing</span></label>
               </div>
             </div>
 
@@ -505,7 +511,7 @@
   const introBtn = document.getElementById("introBtn");
   introBtn.addEventListener("click", () => {
     const met = stage.classList.toggle("met");
-    introBtn.textContent = met ? "Give them some privacy" : "Make the introduction";
+    introBtn.textContent = met ? "Give them some privacy" : "Fertilize!";
   });
 
   // ---------- Background: drifting eggs & swimming sperm ----------
@@ -576,13 +582,14 @@
     for (const s of sperm) {
       s.t += .016;
       s.turn += rand(-.02, .02); s.turn *= .96; s.a += s.turn;               // wander
+      const pd = Math.hypot(pointer.x - s.x, pointer.y - s.y);
+      const chasing = pd < 420;
       let near = null, nd = 1e9;
       for (const e of eggs) { const d = Math.hypot(e.x - s.x, e.y - s.y); if (d < nd) { nd = d; near = e; } }
-      if (nd < 260 && nd > near.r + 30) steer(s, near.x, near.y, .012);       // curious about eggs...
-      if (nd < near.r + 14) steer(s, 2 * s.x - near.x, 2 * s.y - near.y, .15); // ...but shy
-      const pd = Math.hypot(pointer.x - s.x, pointer.y - s.y);
-      if (pd < 120) steer(s, 2 * s.x - pointer.x, 2 * s.y - pointer.y, .12);  // scatter from cursor
-      const speed = s.v * (pd < 120 ? 2.4 : 1);
+      if (chasing) steer(s, pointer.x, pointer.y, .02 + .06 * (1 - pd / 420));             // drawn to the cursor, harder up close
+      else if (nd < 260 && nd > near.r + 30) steer(s, near.x, near.y, .012);             // otherwise curious about eggs...
+      if (nd < near.r + 14) steer(s, 2 * s.x - near.x, 2 * s.y - near.y, .15);           // ...but shy
+      const speed = s.v * (chasing ? 1.8 : 1);
       s.x += Math.cos(s.a) * speed; s.y += Math.sin(s.a) * speed;
       wrap(s, 40); drawSperm(s);
     }
