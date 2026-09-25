@@ -1,0 +1,5 @@
+# Public repo: only the website ships. Keep working files private.
+.DS_Store
+.claude/
+design-guide.md
+apps-script.gs

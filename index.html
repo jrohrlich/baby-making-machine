@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Baby-Making-Machine — Fertility Coaching with Hannah</title>
+<meta name="description" content="Warm, evidence-backed fertility coaching for both partners. Book a free discovery call with Hannah.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Karla:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  /* Tokens from design-guide.md */
+  :root {
+    --marigold: #F6BD60;
+    --cream: #F7EDE2;
+    --blush: #F5CAC3;
+    --sage: #84A59D;
+    --coral: #F28482;
+    --ink: #4A3630;        /* warm charcoal-brown, never pure black */
+    --ink-soft: #7A625A;
+    --paper: #FFFAF4;      /* warm card surface, not stark white */
+    --heading: "Nunito", "Quicksand", sans-serif;
+    --body: "Karla", "Inter", sans-serif;
+    --r-lg: 36px;
+    --r-md: 24px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font: 400 17px/1.75 var(--body);
+    color: var(--ink);
+    background: var(--cream);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { width: min(1100px, 100% - 32px); margin-inline: auto; }
+  h1, h2, h3 { font-family: var(--heading); font-weight: 800; line-height: 1.12; letter-spacing: -.01em; }
+  h2 { font-size: clamp(2rem, 6vw, 3.1rem); }
+  h3 { font-size: 1.3rem; font-weight: 700; }
+  .kicker {
+    display: inline-block; font: 700 .8rem var(--heading); letter-spacing: .08em; text-transform: uppercase;
+    background: #fff8; color: var(--ink-soft); padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
+  }
+  .muted { color: var(--ink-soft); }
+
+  /* Marigold highlighter swipe under key words */
+  .scribble { position: relative; white-space: nowrap; z-index: 0; }
+  .scribble::after {
+    content: ""; position: absolute; left: -4px; right: -4px; bottom: .08em; height: .38em;
+    background: var(--marigold); border-radius: 999px; z-index: -1; opacity: .75;
+    transform: scaleX(0); transform-origin: left; transition: transform .8s .4s cubic-bezier(.3,.8,.3,1);
+  }
+  .seen .scribble::after { transform: scaleX(1); }
+
+  /* ---------- Background swimmers ---------- */
+  #swim { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  header, main, footer { position: relative; z-index: 1; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    --shadow: #d99e3f;
+    display: inline-flex; align-items: center; gap: .5em; cursor: pointer; border: 0;
+    background: var(--marigold); color: var(--ink);
+    font: 700 1rem var(--heading); padding: 1em 1.6em; border-radius: 999px;
+    box-shadow: 0 6px 0 var(--shadow); transition: transform .2s, box-shadow .2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 0 var(--shadow); }
+  .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--shadow); }
+  .btn .arrow { transition: transform .25s; }
+  .btn:hover .arrow { transform: translateX(4px); }
+  .btn.sage { --shadow: #6a8a82; background: var(--sage); color: #fff; }
+  .btn.small { padding: .7em 1.2em; font-size: .9rem; box-shadow: 0 4px 0 var(--shadow); }
+  .btn[disabled] { opacity: .6; pointer-events: none; }
+
+  /* ---------- Nav ---------- */
+  nav .wrap { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 20px 0; }
+  .logo { font: 800 1.05rem var(--heading); display: flex; align-items: center; gap: 10px; }
+  .logo svg { width: 30px; height: 30px; flex: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 48px 0 40px; text-align: center; }
+  .hero h1 { font-size: clamp(2.5rem, 10vw, 5rem); max-width: 14ch; margin-inline: auto; }
+  .hero .sub { font-size: clamp(1.1rem, 3.6vw, 1.35rem); margin: 22px auto 10px; }
+  .rotator { display: grid; justify-items: center; font: 800 1.2em var(--heading); }
+  .rotator span {
+    grid-area: 1/1; white-space: nowrap;
+    opacity: 0; transform: translateY(.6em) rotate(-2deg);
+    transition: opacity .5s, transform .6s cubic-bezier(.3,1.4,.5,1);
+  }
+  .rotator span.on { opacity: 1; transform: none; }
+  .rotator span.out { opacity: 0; transform: translateY(-.6em) rotate(2deg); }
+  .rotator span:nth-child(odd) { color: #c7862a; }
+  .rotator span:nth-child(2) { color: #d9605e; }
+  .rotator span:nth-child(4) { color: #5d8178; }
+  .hero-body { max-width: 40ch; margin: 0 auto 34px; }
+  .hero-note { margin-top: 22px; font-size: .92rem; }
+
+  /* ---------- Wave dividers + blush band ---------- */
+  .wave { display: block; width: 100%; height: 60px; }
+  .blush-band { background: var(--blush); }
+
+  /* ---------- What we track ---------- */
+  .track { padding: 30px 0 40px; text-align: center; }
+  .track p { font: 700 1.05rem var(--heading); margin-bottom: 18px; }
+  .pills { overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+  .pills-row { display: flex; gap: 12px; width: max-content; animation: slide 50s linear infinite; }
+  .pills-row + .pills-row { animation-direction: reverse; margin-top: 12px; }
+  .pills span {
+    background: var(--cream); padding: 10px 18px; border-radius: 999px; font-weight: 500; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .pills span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--sage); }
+  .pills:hover .pills-row { animation-play-state: paused; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* ---------- Sections ---------- */
+  section { padding: 90px 0; }
+  section.tight { padding-top: 0; }
+  .intro { max-width: 600px; margin-bottom: 48px; }
+  .intro p { margin-top: 16px; font-size: 1.08rem; }
+
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s, transform .8s cubic-bezier(.3,.8,.3,1); }
+  .reveal.seen { opacity: 1; transform: none; }
+
+  /* ---------- Approach: staggered, organic ---------- */
+  .pillars { display: grid; gap: 22px; }
+  .pillar {
+    background: var(--paper); border-radius: var(--r-lg); padding: 30px 28px;
+    box-shadow: 0 18px 40px -28px rgba(74,54,48,.35);
+  }
+  .pillar > * { transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
+  .pillar:hover .icon { transform: rotate(-8deg) scale(1.08); }
+  .pillar .icon {
+    width: 58px; height: 58px; border-radius: 42% 58% 55% 45% / 50% 44% 56% 50%;
+    display: grid; place-items: center; margin-bottom: 18px;
+  }
+  .pillar:nth-child(1) .icon { background: var(--marigold); }
+  .pillar:nth-child(2) .icon { background: var(--blush); }
+  .pillar:nth-child(3) .icon { background: #cfe0da; }
+  .pillar .icon svg { width: 28px; height: 28px; stroke: var(--ink); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .pillar h3 { margin-bottom: 8px; }
+  .pillar .aside { display: block; margin-top: 10px; font-style: italic; font-size: .95rem; color: #5d8178; }
+
+  /* ---------- It takes two ---------- */
+  .two-card { background: var(--blush); border-radius: 48px 48px 48px 120px; padding: 40px 24px; text-align: center; }
+  .two-card > p { max-width: 44ch; margin: 14px auto 24px; }
+  .stage { max-width: 420px; margin: 0 auto 24px; }
+  .stage svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .egg-ring { fill: #fff6; stroke: var(--coral); stroke-width: 2; transition: fill .6s 1.5s; }
+  .egg-core { fill: var(--coral); transform-origin: 300px 75px; transition: transform .6s 1.5s cubic-bezier(.3,1.6,.5,1); }
+  .swimmer { transition: transform 1.8s cubic-bezier(.45,.1,.35,1), opacity .4s 1.5s; }
+  .swimmer .tail { animation: wiggle .3s ease-in-out infinite alternate; transform-origin: 96px 75px; }
+  .heart { opacity: 0; transform-origin: 300px 20px; transform: scale(.3) translateY(20px); transition: opacity .4s 1.7s, transform .6s 1.7s cubic-bezier(.3,1.8,.5,1); }
+  .stage.met .egg-ring { fill: #fde3d3; }
+  .stage.met .egg-core { transform: scale(1.35); }
+  .stage.met .swimmer { transform: translateX(160px); opacity: 0; }
+  .stage.met .heart { opacity: 1; transform: none; }
+  @keyframes wiggle { from { transform: skewY(-14deg); } to { transform: skewY(14deg); } }
+  .lbl { font: 700 14px var(--heading); fill: var(--ink); text-anchor: middle; }
+  .thanks .lbl { display: none; }
+  .two-grid { display: grid; gap: 16px; text-align: left; margin-top: 32px; }
+  .two-grid div { background: #fff8; border-radius: var(--r-md); padding: 20px 22px; }
+  .two-grid h3 { font-size: 1.1rem; margin-bottom: 4px; }
+  .two-grid p { font-size: .98rem; }
+  .ninety {
+    margin-top: 22px; display: inline-flex; align-items: center; gap: 14px; text-align: left;
+    background: var(--sage); color: #fff; padding: 14px 24px; border-radius: 999px; font-weight: 500; line-height: 1.4;
+  }
+  .ninety b { font: 800 1.5rem var(--heading); }
+
+  /* ---------- Meet Hannah ---------- */
+  .meet { display: grid; gap: 40px; align-items: center; }
+  .portrait-wrap { position: relative; max-width: 360px; width: 100%; margin-inline: auto; }
+  .portrait {
+    aspect-ratio: 1; overflow: hidden; background: var(--marigold); position: relative;
+    display: grid; place-items: center;
+    border-radius: 58% 42% 48% 52% / 52% 46% 54% 48%;
+    animation: morph 14s ease-in-out infinite alternate;
+  }
+  @keyframes morph {
+    50% { border-radius: 44% 56% 60% 40% / 48% 58% 42% 52%; }
+    100% { border-radius: 52% 48% 40% 60% / 60% 42% 58% 40%; }
+  }
+  .portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .portrait .initial { font: 800 7rem var(--heading); color: #fff; }
+  .sticker {
+    position: absolute; background: var(--paper); border-radius: 999px; padding: 8px 16px;
+    font: 700 .85rem var(--heading); box-shadow: 0 10px 24px -14px rgba(74,54,48,.5);
+    animation: bob 4s ease-in-out infinite; white-space: nowrap;
+  }
+  .sticker.s1 { top: 6%; right: 0; }
+  .sticker.s2 { bottom: 10%; left: 0; animation-delay: -2s; }
+  @keyframes bob { 50% { transform: translateY(-8px) rotate(-2deg); } }
+  .meet p { margin-top: 16px; max-width: 50ch; }
+
+  /* ---------- Form ---------- */
+  .connect {
+    background: var(--paper); border-radius: 48px; padding: clamp(28px, 6vw, 72px);
+    box-shadow: 0 30px 60px -40px rgba(74,54,48,.45); position: relative; overflow: hidden;
+  }
+  .connect::before {
+    content: ""; position: absolute; width: 340px; height: 340px; right: -130px; top: -130px;
+    background: var(--blush); border-radius: 50%; opacity: .6;
+  }
+  .connect > * { position: relative; }
+  .connect .kicker { background: var(--cream); }
+  .hl-name { color: #d9605e; }
+  form { margin-top: 36px; display: grid; gap: 26px; }
+  .row { display: grid; gap: 26px; }
+  .field { display: grid; gap: 8px; }
+  .field > label, .legend { font: 700 .95rem var(--heading); }
+  .optional { font: 400 .85rem var(--body); color: var(--ink-soft); }
+  input[type=text], input[type=email], input[type=tel], textarea {
+    font: 400 1.05rem var(--body); color: var(--ink); background: var(--cream);
+    border: 2px solid transparent; border-radius: 18px; padding: 14px 18px; outline: none; width: 100%;
+    transition: border-color .25s, background .25s;
+  }
+  input::placeholder, textarea::placeholder { color: #b39c92; }
+  input:focus, textarea:focus { border-color: var(--marigold); background: #fff; }
+  textarea { resize: vertical; min-height: 90px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .chip span {
+    display: inline-block; padding: 10px 18px; border-radius: 999px; background: var(--cream);
+    border: 2px solid transparent; font-weight: 500; transition: all .25s cubic-bezier(.3,1.6,.5,1); user-select: none;
+  }
+  .chip:hover span { border-color: var(--blush); }
+  .chip input:checked + span { background: var(--marigold); transform: scale(1.06) rotate(-1deg); }
+  .chip input:focus-visible + span { outline: 2px solid var(--sage); outline-offset: 2px; }
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .submit-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .fineprint { font-size: .9rem; color: var(--ink-soft); }
+  .error { background: #fde3e2; color: #a34240; padding: 12px 18px; border-radius: 16px; font-size: .95rem; }
+
+  .thanks { display: none; text-align: center; }
+  .thanks.show { display: block; animation: rise .7s cubic-bezier(.3,1.4,.5,1); }
+  .thanks .stage { max-width: 300px; }
+  .thanks p { margin: 12px auto 0; max-width: 40ch; }
+  @keyframes rise { from { opacity: 0; transform: translateY(20px) scale(.97); } }
+
+  footer { padding: 30px 0 50px; font-size: .9rem; color: var(--ink-soft); }
+  footer .wrap { display: flex; flex-direction: column; gap: 6px; text-align: center; }
+
+  /* ---------- Larger screens (mobile-first) ---------- */
+  @media (max-width: 420px) {
+    .logo span { font-size: .95rem; }
+  }
+  @media (min-width: 720px) {
+    section { padding: 110px 0; }
+    .hero { padding: 70px 0 60px; }
+    .pillars { grid-template-columns: repeat(3, 1fr); align-items: start; }
+    .pillar:nth-child(2) { margin-top: 48px; }
+    .pillar:nth-child(3) { margin-top: 18px; }
+    .two-card { padding: 56px; }
+    .two-grid { grid-template-columns: 1fr 1fr; }
+    .meet { grid-template-columns: 5fr 6fr; gap: 72px; }
+    .sticker.s1 { right: -6%; }
+    .sticker.s2 { left: -8%; }
+    .row { grid-template-columns: 1fr 1fr; }
+    footer .wrap { flex-direction: row; justify-content: space-between; text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+    .scribble::after { transform: scaleX(1); }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="swim" aria-hidden="true"></canvas>
+
+<header>
+  <nav>
+    <div class="wrap">
+      <a href="#" class="logo">
+        <svg viewBox="0 0 30 30" aria-hidden="true">
+          <circle cx="19" cy="15" r="10" fill="#F5CAC3"/><circle cx="19" cy="15" r="4" fill="#F28482"/>
+          <ellipse cx="5" cy="15" rx="3.4" ry="2.4" fill="#4A3630"/>
+        </svg>
+        <span>Baby-Making-Machine</span>
+      </a>
+      <a href="#connect" class="btn small">Book a call</a>
+    </div>
+  </nav>
+
+  <div class="hero wrap">
+    <span class="kicker reveal">Fertility coaching with Hannah</span>
+    <h1 class="reveal">Less guesswork. More <span class="scribble">baby-making.</span></h1>
+    <p class="sub reveal">
+      Coaching that's
+      <span class="rotator" aria-live="polite"><span class="on">backed by science</span><span>built around you</span><span>actually measurable</span><span>for both of you</span></span>
+    </p>
+    <p class="hero-body muted reveal">We dig through the research, look at your real life, and build a plan you can stick to. Then we check that it's working.</p>
+    <div class="reveal">
+      <a href="#connect" class="btn">Book a free discovery call <span class="arrow">→</span></a>
+      <p class="hero-note muted">30 minutes · free · zero pressure</p>
+    </div>
+  </div>
+</header>
+
+<main>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 240 0, 480 60, 720 30 S 1200 0, 1440 30 V60 H0Z" fill="#F5CAC3"/></svg>
+  <div class="blush-band">
+    <div class="track wrap">
+      <p>Things we'll happily nerd out on together</p>
+      <div class="pills" aria-label="Things we track">
+        <div class="pills-row">
+          <span>Cycle length</span><span>Ovulation timing</span><span>Basal body temp</span><span>Sperm count</span><span>Motility</span><span>Sleep</span><span>Stress</span><span>Lab results</span>
+          <span aria-hidden="true">Cycle length</span><span aria-hidden="true">Ovulation timing</span><span aria-hidden="true">Basal body temp</span><span aria-hidden="true">Sperm count</span><span aria-hidden="true">Motility</span><span aria-hidden="true">Sleep</span><span aria-hidden="true">Stress</span><span aria-hidden="true">Lab results</span>
+        </div>
+        <div class="pills-row" aria-hidden="true">
+          <span>Nutrition</span><span>Movement</span><span>Morphology</span><span>Hormones</span><span>Caffeine (sorry)</span><span>Energy levels</span><span>Habits</span><span>Supplements</span>
+          <span>Nutrition</span><span>Movement</span><span>Morphology</span><span>Hormones</span><span>Caffeine (sorry)</span><span>Energy levels</span><span>Habits</span><span>Supplements</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0 20 C 300 60, 600 0, 900 30 S 1300 50, 1440 20 V0 H0Z" fill="#F5CAC3"/></svg>
+
+  <section id="approach">
+    <div class="wrap">
+      <div class="intro reveal">
+        <span class="kicker">Our approach</span>
+        <h2>No copy-paste advice. <span class="scribble">Promise.</span></h2>
+        <p class="muted">“Just relax and it'll happen” isn't a plan. Here's what we do instead.</p>
+      </div>
+      <div class="pillars">
+        <article class="pillar reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2Z"/><path d="M8 7h6M8 11h6"/></svg></div>
+          <h3>We read the fine print</h3>
+          <p class="muted">We read the books and dig into the research, then show you what the latest science actually says.</p>
+          <span class="aside">Yes, even the footnotes.</span>
+        </article>
+        <article class="pillar reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10Z"/></svg></div>
+          <h3>All about you</h3>
+          <p class="muted">Your biomarkers, your body, your habits, and how much energy you really have for change. Then we build systems that fit your life.</p>
+          <span class="aside">Not someone else's morning routine.</span>
+        </article>
+        <article class="pillar reveal">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/></svg></div>
+          <h3>Progress you can see</h3>
+          <p class="muted">We choose clear markers and track them together, so you know what's working instead of just hoping.</p>
+          <span class="aside">Hope is lovely. Data is better.</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="two" class="tight">
+    <div class="wrap">
+      <div class="two-card reveal">
+        <span class="kicker">Built for couples</span>
+        <h2>It takes two.<br>We coach both.</h2>
+        <p class="muted">Sperm does half the work and gets almost none of the attention. We look after the egg <em>and</em> the sperm, which means both of you.</p>
+
+        <div class="stage" id="stage">
+          <svg viewBox="0 0 400 150" aria-hidden="true">
+            <circle class="egg-ring" cx="300" cy="75" r="46"/>
+            <circle class="egg-core" cx="300" cy="75" r="12"/>
+            <path class="heart" d="M300 6 c-6-10-22-6-18 6 c3 8 18 16 18 16 s15-8 18-16 c4-12-12-16-18-6Z" fill="#F28482"/>
+            <text class="lbl" x="70" y="112">Sperm</text><text class="lbl" x="300" y="146">Egg</text>
+            <g class="swimmer">
+              <path class="tail" d="M96 75 C 84 64, 74 86, 62 75 S 44 66, 32 75" fill="none" stroke="#4A3630" stroke-width="2.5" stroke-linecap="round"/>
+              <ellipse cx="106" cy="75" rx="11" ry="8" fill="#4A3630"/>
+            </g>
+          </svg>
+        </div>
+        <button class="btn sage" id="introBtn" type="button">Fertilize!</button>
+
+        <div class="two-grid">
+          <div><h3>The egg side</h3><p class="muted">Hormones, cycle health and egg quality, tracked month to month.</p></div>
+          <div><h3>The sperm side</h3><p class="muted">Count, motility and the everyday habits that shape them. (Yes, the hot tub counts.)</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="meet" class="tight">
+    <div class="wrap meet">
+      <div class="portrait-wrap reveal">
+        <!-- Drop a photo named hannah.jpg next to this file; the monogram shows until then. -->
+        <div class="portrait">
+          <span class="initial">H</span>
+          <img src="hannah.jpg" alt="Hannah, fertility and women's health coach" onerror="this.remove()">
+        </div>
+        <span class="sticker s1">📚 Women's health nerd</span>
+        <span class="sticker s2">🌱 Ex-startup founder</span>
+      </div>
+      <div class="reveal">
+        <span class="kicker">Meet your coach</span>
+        <h2>Hi, I'm <span class="scribble">Hannah.</span></h2>
+        <p class="muted">Entrepreneur, women's health coach, and the friend who actually read the study everyone keeps quoting.</p>
+        <p class="muted">My goal is to empower women with the data they need to optimize their fertility journey, for the lifestyle they want. Without the stress and overwhelm of 2am AI rabbit holes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="connect" class="tight">
+    <div class="wrap">
+      <div class="connect reveal">
+        <div id="formView">
+          <span class="kicker">Free discovery call</span>
+          <h2><span id="greet">Let's chat</span><span class="hl-name" id="greetName"></span></h2>
+          <p class="muted" style="margin-top:12px;max-width:46ch">30 free minutes, zero pressure. Tell us a little about you and Hannah will reach out to find a time.</p>
+
+          <form id="form" novalidate>
+            <div class="row">
+              <div class="field">
+                <label for="name">Full name</label>
+                <input id="name" name="name" type="text" autocomplete="given-name" placeholder="Nice to meet you!" required>
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+              </div>
+            </div>
+
+            <div class="field">
+              <span class="legend">Where are you in the journey?</span>
+              <div class="chips" role="radiogroup" aria-label="Where are you in the journey">
+                <label class="chip"><input type="radio" name="stage" value="Planning ahead"><span>Planning ahead</span></label>
+                <label class="chip"><input type="radio" name="stage" value="Trying under 1 year"><span>Trying &lt; 1 year</span></label>
+                <label class="chip"><input type="radio" name="stage" value="Trying 1+ years"><span>Trying 1+ years</span></label>
+                <label class="chip"><input type="radio" name="stage" value="Doing IVF / IUI"><span>Doing IVF / IUI</span></label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="note">Anything Hannah should know? <span class="optional">(optional)</span></label>
+              <textarea id="note" name="note" rows="3" placeholder="A sentence or two is perfect"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="phone">Phone <span class="optional">(optional)</span></label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="Just for scheduling">
+              </div>
+              <div class="field">
+                <label for="source">How'd you find us? <span class="optional">(optional)</span></label>
+                <input id="source" name="source" type="text" placeholder="Instagram, a friend…">
+              </div>
+            </div>
+
+            <!-- Spam trap: hidden from people, bots fill it in and get silently dropped. -->
+            <input class="trap" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+            <div class="submit-row">
+              <button class="btn" type="submit" id="submitBtn"><span id="btnText">Request my call</span> <span class="arrow">→</span></button>
+              <span class="fineprint">Your details go only to Hannah. No spam, ever.</span>
+            </div>
+            <p class="error" id="error" role="alert" hidden></p>
+          </form>
+        </div>
+
+        <div class="thanks" id="thanks" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© <span id="year"></span> Baby-Making-Machine · Made with love (and a lot of research)</span>
+    <span>Coaching complements, and doesn't replace, medical care.</span>
+  </div>
+</footer>
+
+<script>
+  // ---------- CONFIG ----------
+  // Web app URL of the Apps Script in apps-script.gs (ends in /exec).
+  // Each submission adds a row to the Google Sheet and emails Hannah.
+  const FORM_ENDPOINT = "https://script.google.com/macros/s/AKfycbzYTCpp0Yy7a4xQCxgWrqDPNvDn7sfd0kkOKlbDLYrde8UhcKhlVg4gmw0-9tf7qaXG/exec";
+
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // ---------- Reveal on scroll ----------
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  const stagger = sel => document.querySelectorAll(sel).forEach((el, i) => el.style.transitionDelay = i * 0.12 + "s");
+  stagger(".hero .reveal"); stagger(".pillar");
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+  // ---------- Hero rotator ----------
+  const words = [...document.querySelectorAll(".rotator span")];
+  let w = 0;
+  if (!reduceMotion) setInterval(() => {
+    const cur = words[w];
+    cur.classList.replace("on", "out");
+    setTimeout(() => cur.classList.remove("out"), 600);
+    w = (w + 1) % words.length;
+    words[w].classList.add("on");
+  }, 2600);
+
+  // ---------- "Make the introduction" ----------
+  const stage = document.getElementById("stage");
+  const introBtn = document.getElementById("introBtn");
+  introBtn.addEventListener("click", () => {
+    const met = stage.classList.toggle("met");
+    introBtn.textContent = met ? "Give them some privacy" : "Make the introduction";
+  });
+
+  // ---------- Background: drifting eggs & swimming sperm ----------
+  const cv = document.getElementById("swim");
+  const ctx = cv.getContext("2d");
+  let W, H, eggs = [], sperm = [];
+  const pointer = { x: -999, y: -999 };
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  function setup() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const small = W < 700;
+    eggs = Array.from({ length: small ? 2 : 4 }, () => ({
+      x: rand(0, W), y: rand(0, H), r: rand(18, 32),
+      vx: rand(-.08, .08), vy: rand(-.06, .06), t: rand(0, 6),
+    }));
+    sperm = Array.from({ length: small ? 8 : 16 }, () => ({
+      x: rand(0, W), y: rand(0, H), a: rand(0, Math.PI * 2),
+      v: rand(.35, .7), t: rand(0, 6), turn: 0,
+    }));
+  }
+
+  function wrap(o, m) {
+    if (o.x < -m) o.x = W + m; if (o.x > W + m) o.x = -m;
+    if (o.y < -m) o.y = H + m; if (o.y > H + m) o.y = -m;
+  }
+
+  function steer(s, tx, ty, strength) {
+    const want = Math.atan2(ty - s.y, tx - s.x);
+    s.a += Math.atan2(Math.sin(want - s.a), Math.cos(want - s.a)) * strength;
+  }
+
+  function drawEgg(e) {
+    const r = e.r * (1 + Math.sin(e.t) * .05);
+    ctx.fillStyle = "rgba(245,202,195,.45)";
+    ctx.strokeStyle = "rgba(242,132,130,.35)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(e.x, e.y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "rgba(242,132,130,.35)";
+    ctx.beginPath(); ctx.arc(e.x, e.y, r * .25, 0, Math.PI * 2); ctx.fill();
+  }
+
+  function drawSperm(s) {
+    const cos = Math.cos(s.a), sin = Math.sin(s.a);
+    ctx.strokeStyle = "rgba(74,54,48,.2)";
+    ctx.lineWidth = 1.3; ctx.lineCap = "round";
+    ctx.beginPath();
+    for (let i = 0; i <= 14; i++) {
+      const d = 4 + i * 2.2;
+      const wob = Math.sin(s.t * 9 - i * .7) * i * .32;
+      const px = s.x - cos * d - sin * wob, py = s.y - sin * d + cos * wob;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.stroke();
+    ctx.save();
+    ctx.translate(s.x, s.y); ctx.rotate(s.a);
+    ctx.fillStyle = "rgba(74,54,48,.26)";
+    ctx.beginPath(); ctx.ellipse(0, 0, 4.4, 3, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (const e of eggs) { e.x += e.vx; e.y += e.vy; e.t += .015; wrap(e, 40); drawEgg(e); }
+    for (const s of sperm) {
+      s.t += .016;
+      s.turn += rand(-.02, .02); s.turn *= .96; s.a += s.turn;               // wander
+      let near = null, nd = 1e9;
+      for (const e of eggs) { const d = Math.hypot(e.x - s.x, e.y - s.y); if (d < nd) { nd = d; near = e; } }
+      if (nd < 260 && nd > near.r + 30) steer(s, near.x, near.y, .012);       // curious about eggs...
+      if (nd < near.r + 14) steer(s, 2 * s.x - near.x, 2 * s.y - near.y, .15); // ...but shy
+      const pd = Math.hypot(pointer.x - s.x, pointer.y - s.y);
+      if (pd < 120) steer(s, 2 * s.x - pointer.x, 2 * s.y - pointer.y, .12);  // scatter from cursor
+      const speed = s.v * (pd < 120 ? 2.4 : 1);
+      s.x += Math.cos(s.a) * speed; s.y += Math.sin(s.a) * speed;
+      wrap(s, 40); drawSperm(s);
+    }
+    if (!reduceMotion) requestAnimationFrame(tick);
+  }
+
+  setup(); tick();
+  addEventListener("resize", () => { setup(); if (reduceMotion) tick(); });
+  addEventListener("pointermove", e => { pointer.x = e.clientX; pointer.y = e.clientY; });
+  document.addEventListener("pointerleave", () => { pointer.x = pointer.y = -999; });
+
+  // ---------- Form: reactive greeting ----------
+  const nameInput = document.getElementById("name");
+  const greet = document.getElementById("greet");
+  const greetName = document.getElementById("greetName");
+  const firstName = () => {
+    const n = nameInput.value.trim().split(/\s+/)[0];
+    return n ? n.charAt(0).toUpperCase() + n.slice(1) : "";
+  };
+  nameInput.addEventListener("input", () => {
+    const n = firstName();
+    greet.textContent = n ? "Hi there, " : "Let's chat";
+    greetName.textContent = n ? n + "!" : "";
+  });
+
+  // ---------- Form: submit ----------
+  const form = document.getElementById("form");
+  const err = document.getElementById("error");
+  const btn = document.getElementById("submitBtn");
+  const btnText = document.getElementById("btnText");
+
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    err.hidden = true;
+    const email = document.getElementById("email");
+    if (!nameInput.value.trim()) return showError("We'd love to know your name first.", nameInput);
+    if (!email.validity.valid || !email.value) return showError("Hmm, that email doesn't look quite right.", email);
+    if (!FORM_ENDPOINT) return showError("This form isn't connected yet. Set FORM_ENDPOINT in index.html.");
+
+    btn.disabled = true;
+    btnText.textContent = "Sending…";
+    try {
+      // Form-encoded body keeps this a "simple" request, which Apps Script accepts cross-origin.
+      const res = await fetch(FORM_ENDPOINT, { method: "POST", body: new URLSearchParams(new FormData(form)) });
+      const result = await res.json();
+      if (!result.ok) throw new Error(result.error);
+      showThanks();
+    } catch {
+      showError("Something went wrong sending your details. Mind trying again in a moment?");
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = "Request my call";
+    }
+  });
+
+  // Success: reuse the sperm-meets-egg illustration, then play it.
+  function showThanks() {
+    const thanks = document.getElementById("thanks");
+    const art = stage.cloneNode(true);
+    art.removeAttribute("id");
+    art.classList.remove("met");
+    thanks.append(art);
+    thanks.insertAdjacentHTML("beforeend",
+      `<h2>You're in, <span class="hl-name"></span>!</h2>
+       <p class="muted">Hannah will be in touch within two business days to find a time. Meanwhile, go drink a glass of water. It never hurts.</p>`);
+    thanks.querySelector(".hl-name").textContent = firstName();
+    document.getElementById("formView").hidden = true;
+    thanks.classList.add("show");
+    setTimeout(() => art.classList.add("met"), 400);
+  }
+
+  function showError(msg, field) {
+    err.textContent = msg;
+    err.hidden = false;
+    field?.focus();
+  }
+</script>
+</body>
+</html>
